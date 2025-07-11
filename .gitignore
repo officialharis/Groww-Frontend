@@ -1,0 +1,30 @@
+# Node modules
+node_modules/
+
+# Vite build output
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+
+# Vercel & Netlify
+.vercel/
+.netlify/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs/editors
+.vscode/
+.idea/
+*.sw?
+
+# Optional OS files
+*.log

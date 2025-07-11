@@ -52,10 +52,17 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Don't close if clicking on search results
+      if (event.target.closest('.search-result-item')) {
+        return;
+      }
+
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchResults(false);
       }
-      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+
+      // For mobile search, only close if clicking outside the entire mobile search overlay
+      if (showMobileSearch && !event.target.closest('.mobile-search-overlay')) {
         setShowMobileSearch(false);
         setShowSearchResults(false);
       }
@@ -65,13 +72,18 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [showMobileSearch]);
 
   const handleSearchSelect = (stock) => {
-    navigate(`/stocks/${stock.symbol}`);
-    setSearchQuery('');
-    setShowSearchResults(false);
-    setShowMobileSearch(false);
+    console.log('Navigating to stock:', stock.symbol); // Debug log
+    try {
+      navigate(`/stocks/${stock.symbol}`);
+      setSearchQuery('');
+      setShowSearchResults(false);
+      setShowMobileSearch(false);
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
   };
 
   const handleSearchSubmit = (e) => {
@@ -233,7 +245,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
 
       {/* Mobile Search Overlay */}
       {showMobileSearch && (
-        <div className="fixed inset-0 bg-white dark:bg-gray-900 z-[60] sm:hidden">
+        <div className="mobile-search-overlay fixed inset-0 bg-white dark:bg-gray-900 z-[60] sm:hidden">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
               <button
@@ -255,8 +267,17 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                     type="text"
                     placeholder="Search stocks, sectors..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => searchQuery && setShowSearchResults(true)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value.trim()) {
+                        setShowSearchResults(true);
+                      }
+                    }}
+                    onFocus={() => {
+                      if (searchQuery.trim()) {
+                        setShowSearchResults(true);
+                      }
+                    }}
                     className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-groww-primary focus:border-transparent min-h-[44px]"
                     autoFocus
                   />
@@ -267,13 +288,18 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
 
           {/* Mobile Search Results */}
           <div className="flex-1 overflow-y-auto">
-            {showSearchResults && searchResults.length > 0 && (
+            {searchResults.length > 0 && (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {searchResults.map((stock) => (
                   <button
                     key={stock.symbol}
-                    onClick={() => handleSearchSelect(stock)}
-                    className="w-full px-4 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Mobile search result clicked:', stock.symbol);
+                      handleSearchSelect(stock);
+                    }}
+                    className="search-result-item w-full px-4 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:bg-gray-100 dark:active:bg-gray-700"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
