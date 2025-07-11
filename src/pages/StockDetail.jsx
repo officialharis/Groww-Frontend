@@ -140,28 +140,30 @@ const StockDetail = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Chart Section */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <p className="text-3xl font-bold text-gray-900">₹{stock.price.toLocaleString()}</p>
-                <div className={`flex items-center space-x-1 mt-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {isPositive ? (
-                    <TrendingUp className="w-5 h-5" />
-                  ) : (
-                    <TrendingDown className="w-5 h-5" />
-                  )}
-                  <span className="font-medium">
-                    {isPositive ? '+' : ''}₹{Math.abs(stock.change).toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
-                  </span>
+          <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">₹{stock.price.toLocaleString()}</p>
+                  <div className={`flex items-center space-x-1 mt-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    {isPositive ? (
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                    )}
+                    <span className="font-medium text-sm sm:text-base break-words">
+                      {isPositive ? '+' : ''}₹{Math.abs(stock.change).toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+                    </span>
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex space-x-2">
+
+              <div className="flex flex-wrap gap-2 sm:gap-2">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex-shrink-0 min-w-[44px] ${
                       activeTab === tab
                         ? 'bg-groww-primary text-white'
                         : 'text-gray-600 hover:bg-gray-100'

@@ -14,7 +14,9 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const searchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -53,6 +55,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchResults(false);
       }
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+        setShowMobileSearch(false);
+        setShowSearchResults(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -65,6 +71,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     navigate(`/stocks/${stock.symbol}`);
     setSearchQuery('');
     setShowSearchResults(false);
+    setShowMobileSearch(false);
   };
 
   const handleSearchSubmit = (e) => {
@@ -78,12 +85,12 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     <nav className="navbar fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-50 h-16">
       <div className="px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Hamburger Menu Button - Mobile Only */}
             {isMobile && (
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
+                className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden min-h-[44px] min-w-[44px]"
               >
                 <Menu className="w-6 h-6" />
               </button>
@@ -91,12 +98,12 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
 
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity min-h-[44px]"
             >
-              <div className="w-8 h-8 bg-groww-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-groww-primary rounded-lg flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">G</span>
               </div>
-              <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Groww</span>
+              <span className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white hidden xs:inline">Groww</span>
             </button>
             
             <div className="navbar-search-container relative w-full max-w-md sm:max-w-lg md:max-w-xl lg:w-96 hidden sm:block z-50" ref={searchRef}>
@@ -159,10 +166,11 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
             {/* Mobile Search Button */}
             <button
-              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors sm:hidden"
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors sm:hidden min-h-[44px] min-w-[44px]"
               title="Search"
             >
               <Search className="w-5 h-5" />
@@ -171,15 +179,16 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
             {/* Wallet Balance */}
             <button
               onClick={() => navigate('/wallet')}
-              className="flex items-center space-x-2 px-2 sm:px-3 py-2 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[44px]"
+              className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[44px]"
               title="View Wallet"
             >
-              <Wallet className="w-4 h-4 text-groww-primary" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white hidden sm:inline">
+              <Wallet className="w-4 h-4 text-groww-primary flex-shrink-0" />
+              <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white hidden xs:inline">
                 ₹{user?.balance?.toLocaleString() || '0'}
               </span>
             </button>
 
+            {/* Theme Toggle - Always visible */}
             <button
               onClick={toggleTheme}
               className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[44px] min-w-[44px]"
@@ -188,17 +197,18 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <button className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            {/* Notifications - Hidden on mobile */}
+            <button className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[44px] min-w-[44px] hidden sm:flex">
               <Bell className="w-5 h-5" />
             </button>
-            
+
             <div className="relative">
               <button
                 onClick={() => setShowProfile(!showProfile)}
-                className="flex items-center space-x-2 p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center space-x-1 sm:space-x-2 p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors min-h-[44px]"
               >
-                <User className="w-5 h-5" />
-                <span className="text-sm font-medium">{user?.name}</span>
+                <User className="w-5 h-5 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium hidden sm:inline max-w-[80px] truncate">{user?.name}</span>
               </button>
               
               {showProfile && (
@@ -220,6 +230,94 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Search Overlay */}
+      {showMobileSearch && (
+        <div className="fixed inset-0 bg-white dark:bg-gray-900 z-[60] sm:hidden">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => {
+                  setShowMobileSearch(false);
+                  setSearchQuery('');
+                  setShowSearchResults(false);
+                }}
+                className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <div className="flex-1 relative" ref={mobileSearchRef}>
+                <form onSubmit={handleSearchSubmit}>
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="text"
+                    placeholder="Search stocks, sectors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchQuery && setShowSearchResults(true)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-groww-primary focus:border-transparent min-h-[44px]"
+                    autoFocus
+                  />
+                </form>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Search Results */}
+          <div className="flex-1 overflow-y-auto">
+            {showSearchResults && searchResults.length > 0 && (
+              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                {searchResults.map((stock) => (
+                  <button
+                    key={stock.symbol}
+                    onClick={() => handleSearchSelect(stock)}
+                    className="w-full px-4 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={stock.logo}
+                          alt={stock.name}
+                          className="w-10 h-10 rounded-lg object-cover"
+                        />
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">{stock.symbol}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{stock.name}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-gray-900 dark:text-white">₹{stock.price.toLocaleString()}</p>
+                        <div className={`flex items-center space-x-1 text-sm ${
+                          stock.change >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {stock.change >= 0 ? (
+                            <TrendingUp className="w-3 h-3" />
+                          ) : (
+                            <TrendingDown className="w-3 h-3" />
+                          )}
+                          <span>{stock.changePercent.toFixed(2)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+            {searchQuery && searchResults.length === 0 && (
+              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                No stocks found for "{searchQuery}"
+              </div>
+            )}
+            {!searchQuery && (
+              <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                Start typing to search for stocks...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 };
